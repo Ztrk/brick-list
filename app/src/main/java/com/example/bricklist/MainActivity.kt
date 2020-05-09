@@ -1,5 +1,6 @@
 package com.example.bricklist
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
@@ -15,7 +16,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         addInventoryButton.setOnClickListener { view ->
-
+            val intent = Intent(this, NewInventoryActivity::class.java)
+            startActivity(intent)
         }
     }
 
