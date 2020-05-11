@@ -2,20 +2,37 @@ package com.example.bricklist
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var viewAdapter: InventoryViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        addInventoryButton.setOnClickListener { view ->
+        val viewManager = LinearLayoutManager(this)
+        viewAdapter = InventoryViewAdapter()
+        viewAdapter.inventories = listOf(
+            Inventory().apply { name = "ASDF" },
+            Inventory().apply { name = "Name" },
+            Inventory().apply { name = "Some project" }
+        )
+
+        inventoriesView.apply {
+            setHasFixedSize(true)
+            layoutManager = viewManager
+            adapter = viewAdapter
+        }
+
+        addInventoryButton.setOnClickListener {
             val intent = Intent(this, NewInventoryActivity::class.java)
             startActivity(intent)
         }

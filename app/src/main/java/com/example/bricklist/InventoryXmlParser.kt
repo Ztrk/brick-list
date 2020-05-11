@@ -40,7 +40,7 @@ class InventoryXmlParser {
         val inventoryPart = InventoryPart()
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
-                continue;
+                continue
             }
             when (parser.name) {
                 "ITEMTYPE" -> inventoryPart.typeCode = readText(parser, "ITEMTYPE")
@@ -69,8 +69,8 @@ class InventoryXmlParser {
         var depth = 1
         while (depth != 0) {
             when (parser.next()) {
-                XmlPullParser.START_TAG -> ++depth;
-                XmlPullParser.END_TAG -> --depth;
+                XmlPullParser.START_TAG -> ++depth
+                XmlPullParser.END_TAG -> --depth
             }
         }
     }
