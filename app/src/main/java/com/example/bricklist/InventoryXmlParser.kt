@@ -8,7 +8,7 @@ import java.lang.IllegalStateException
 class InventoryXmlParser {
     private val namespace: String? = null
 
-    fun parse(xml: String): Inventory {
+    fun parse(xml: String): InventoryWithParts {
         val parser = XmlPullParserFactory.newInstance().newPullParser()
         val reader = StringReader(xml)
         parser.setInput(reader)
@@ -16,7 +16,7 @@ class InventoryXmlParser {
         return readInventory(parser)
     }
 
-    private fun readInventory(parser: XmlPullParser): Inventory {
+    private fun readInventory(parser: XmlPullParser): InventoryWithParts {
         parser.require(XmlPullParser.START_TAG, namespace, "INVENTORY")
 
         val inventoryParts = mutableListOf<InventoryPart>()
@@ -32,7 +32,7 @@ class InventoryXmlParser {
                 }
             }
         }
-        return Inventory(inventoryParts)
+        return InventoryWithParts(inventoryParts)
     }
 
     private fun readInventoryPart(parser: XmlPullParser): InventoryPart {

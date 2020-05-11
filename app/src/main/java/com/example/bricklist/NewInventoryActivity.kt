@@ -24,7 +24,7 @@ class NewInventoryActivity : AppCompatActivity() {
 
         }
 
-        addButton.setOnClickListener { _ ->
+        addButton.setOnClickListener {
             val setNumber = setNumberEdit.text
             val name = nameEdit.text.toString()
             val url = "http://fcds.cs.put.poznan.pl/MyWeb/BL/$setNumber.xml"
@@ -33,7 +33,7 @@ class NewInventoryActivity : AppCompatActivity() {
                 Response.Listener<String> { response ->
                     val parser = InventoryXmlParser()
                     val inventory = parser.parse(response)
-                    inventory.name = name
+                    inventory.inventory.name = name
                     resultText.text = inventory.parts[0].itemCode
                 },
                 Response.ErrorListener { error ->
