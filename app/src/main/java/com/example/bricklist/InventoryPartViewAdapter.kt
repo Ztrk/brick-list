@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.inventory_part_item.view.*
 class InventoryPartViewAdapter
     : RecyclerView.Adapter<InventoryPartViewAdapter.InventoryViewHolder>() {
 
-    var inventoryParts = listOf<InventoryPart>()
+    var inventoryParts = listOf<InventoryPartWithReferences>()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -32,8 +32,8 @@ class InventoryPartViewAdapter
     override fun getItemCount() = inventoryParts.size
 
     override fun onBindViewHolder(holder: InventoryViewHolder, position: Int) {
-        holder.nameText.text = inventoryParts[position].name
-        holder.colorText.text = inventoryParts[position].color
-        holder.codeText.text = inventoryParts[position].itemCode
+        holder.nameText.text = inventoryParts[position].item.name
+        holder.colorText.text = inventoryParts[position].color.name
+        holder.codeText.text = inventoryParts[position].item.code
     }
 }

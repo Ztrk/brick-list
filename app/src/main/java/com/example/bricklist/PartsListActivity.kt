@@ -17,9 +17,18 @@ class PartsListActivity : AppCompatActivity() {
         val viewManager = LinearLayoutManager(this)
         val viewAdapter = InventoryPartViewAdapter()
         viewAdapter.inventoryParts = listOf(
-            InventoryPart().apply { name = "Name"; color = "Red"; itemCode = "old3001" },
-            InventoryPart().apply { name = "Some brick"; color = "Yellow"; itemCode = "231" },
-            InventoryPart().apply { name = "Flat piece"; color = "Green"; itemCode = "222" }
+            InventoryPartWithReferences(
+                item = Item(name = "Name", code = "old3001"),
+                color = Color(name = "Red")
+            ),
+            InventoryPartWithReferences(
+                item = Item(name = "Some brick", code = "231"),
+                color = Color(name = "Yellow")
+            ),
+            InventoryPartWithReferences(
+                item = Item(name = "Flat piece", code = "222"),
+                color = Color(name = "Green")
+            )
         )
 
         inventoryPartsView.apply {

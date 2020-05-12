@@ -47,32 +47,21 @@ class InventoryXmlParserTest {
         val inventory = parser.parse(xml)
         assertEquals(2, inventory.parts.size)
 
-        val part1 = InventoryPart()
-        part1.typeCode = "M"
-        part1.itemCode = "old012"
-        part1.quantityInSet = 1
-        part1.colorCode = "0"
-        part1.extra = "N"
-        part1.alternate = "N"
+        val part1 = InventoryPartWithReferences(
+            InventoryPart(quantityInSet = 1, alternate = "N", extra = "N"),
+            Item(code = "old012"),
+            Color(code = 0),
+            ItemType(code = "M")
+        )
 
-        val part2 = InventoryPart()
-        part2.typeCode = "P"
-        part2.itemCode = "3001old"
-        part2.quantityInSet = 3
-        part2.colorCode = "7"
-        part2.extra = "N"
-        part2.alternate = "N"
+        val part2 = InventoryPartWithReferences(
+            InventoryPart(quantityInSet = 3, alternate = "N", extra = "N"),
+            Item(code = "3001old"),
+            Color(code = 7),
+            ItemType(code = "P")
+        )
 
-        assertPartEquals(part1, inventory.parts[0])
-        assertPartEquals(part2, inventory.parts[1])
-    }
-
-    private fun assertPartEquals(expected: InventoryPart, actual: InventoryPart) {
-        assertEquals(expected.typeCode, actual.typeCode)
-        assertEquals(expected.itemCode, actual.itemCode)
-        assertEquals(expected.quantityInSet, actual.quantityInSet)
-        assertEquals(expected.colorCode, actual.colorCode)
-        assertEquals(expected.extra, actual.extra)
-        assertEquals(expected.alternate, actual.alternate)
+        assertEquals(part1, inventory.parts[0])
+        assertEquals(part2, inventory.parts[1])
     }
 }

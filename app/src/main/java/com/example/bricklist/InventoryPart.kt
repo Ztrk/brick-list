@@ -1,23 +1,37 @@
 package com.example.bricklist
 
-class InventoryPart() {
-    var id = 0
+import androidx.lifecycle.LiveData
+import androidx.room.*
 
-    var itemID = 0
-    var itemCode = ""
+@Entity(tableName = "InventoriesParts")
+data class InventoryPart(
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    var inventoryId: Int = 0,
+    var itemId: Int = 0,
+    var colorId: Int = 0,
+    var typeId: Int = 0,
+    var extra: String = "",
+    var quantityInSet: Int = 0,
+    var quantityInStore: Int = 0,
+    @Ignore var alternate: String = ""
+)
 
-    var colorID = 0
-    var colorCode = ""
-    var color = ""
+data class InventoryPartWithReferences(
+    @Embedded val inventoryPart: InventoryPart = InventoryPart(),
 
-    var typeCode = ""
-    var extra = ""
+    @Relation(parentColumn = "itemId", entityColumn = "id")
+    val item: Item = Item(),
 
-    var name = ""
-    var image = ""
+    @Relation(parentColumn = "colorId", entityColumn = "id")
+    val color: Color = Color(),
 
-    var quantityInSet = 0
-    var quantityInStore = 0
+    @Relation(parentColumn = "typeId", entityColumn = "id")
+    val itemType: ItemType = ItemType(),
+    val code: Code = Code()
+)
 
-    var alternate = ""
+@Dao
+interface InventoryPartDao {
+    @Query("SELECT * from inventoriesParts")
+    fun getInventoryParts() : LiveData<List<InventoryPartWithReferences>>
 }

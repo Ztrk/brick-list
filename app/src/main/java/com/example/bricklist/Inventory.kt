@@ -5,16 +5,17 @@ import androidx.room.*
 import java.util.*
 
 @Entity(tableName = "Inventories")
-class Inventory() {
-    @PrimaryKey(autoGenerate = true) var id = 0
-    var name = ""
-    var active = true
-    @Ignore var lastAccessed = Calendar.getInstance()
-}
+data class Inventory(
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    var name: String = "",
+    var active: Boolean = true,
+    @Ignore var lastAccessed: Calendar = Calendar.getInstance()
+)
 
-class InventoryWithParts(val parts: List<InventoryPart>) {
-    val inventory = Inventory()
-}
+data class InventoryWithParts(
+    val inventory: Inventory = Inventory(),
+    val parts: List<InventoryPartWithReferences> = listOf()
+)
 
 @Dao
 interface InventoryDao {

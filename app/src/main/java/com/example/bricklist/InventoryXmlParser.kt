@@ -19,12 +19,12 @@ class InventoryXmlParser {
     private fun readInventory(parser: XmlPullParser): InventoryWithParts {
         parser.require(XmlPullParser.START_TAG, namespace, "INVENTORY")
 
-        val inventoryParts = mutableListOf<InventoryPart>()
+        val inventoryParts = mutableListOf<InventoryPartWithReferences>()
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType == XmlPullParser.START_TAG) {
                 if (parser.name == "ITEM") {
                     val part = readInventoryPart(parser)
-                    if (part.alternate == "N")
+                    if (part.inventoryPart.alternate == "N")
                         inventoryParts.add(part)
                 }
                 else {
@@ -32,23 +32,23 @@ class InventoryXmlParser {
                 }
             }
         }
-        return InventoryWithParts(inventoryParts)
+        return InventoryWithParts(parts = inventoryParts)
     }
 
-    private fun readInventoryPart(parser: XmlPullParser): InventoryPart {
+    private fun readInventoryPart(parser: XmlPullParser): InventoryPartWithReferences {
         parser.require(XmlPullParser.START_TAG, namespace, "ITEM")
-        val inventoryPart = InventoryPart()
+        val inventoryPart = InventoryPartWithReferences()
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
                 continue
             }
             when (parser.name) {
-                "ITEMTYPE" -> inventoryPart.typeCode = readText(parser, "ITEMTYPE")
-                "ITEMID" -> inventoryPart.itemCode = readText(parser, "ITEMID")
-                "QTY" -> inventoryPart.quantityInSet = readText(parser, "QTY").toInt()
-                "COLOR" -> inventoryPart.colorCode = readText(parser, "COLOR")
-                "EXTRA" -> inventoryPart.extra = readText(parser, "EXTRA")
-                "ALTERNATE" -> inventoryPart.alternate = readText(parser, "ALTERNATE")
+                "ITEMTYPE" -> inventoryPart.itemType.code = readText(parser, "ITEMTYPE")
+                "ITEMID" -> inventoryPart.item.code = readText(parser, "ITEMID")
+                "QTY" -> inventoryPart.inventoryPart.quantityInSet = readText(parser, "QTY").toInt()
+                "COLOR" -> inventoryPart.color.code = readText(parser, "COLOR").toInt()
+                "EXTRA" -> inventoryPart.inventoryPart.extra = readText(parser, "EXTRA")
+                "ALTERNATE" -> inventoryPart.inventoryPart.alternate = readText(parser, "ALTERNATE")
                 else -> skip(parser)
             }
         }

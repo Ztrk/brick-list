@@ -34,7 +34,7 @@ class NewInventoryActivity : AppCompatActivity() {
                     val parser = InventoryXmlParser()
                     val inventory = parser.parse(response)
                     inventory.inventory.name = name
-                    resultText.text = inventory.parts[0].itemCode
+                    resultText.text = inventory.parts[0].item.code
                 },
                 Response.ErrorListener { error ->
                     resultText.text = error.toString()
