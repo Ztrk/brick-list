@@ -5,10 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import org.w3c.dom.Text
+import kotlinx.android.synthetic.main.inventory_item.view.*
 
-class InventoryViewAdapter()
-        : RecyclerView.Adapter<InventoryViewAdapter.InventoryViewHolder>() {
+class InventoryViewAdapter(private val onClickListener: (View, Inventory) -> Unit)
+    : RecyclerView.Adapter<InventoryViewAdapter.InventoryViewHolder>() {
 
     var inventories = listOf<Inventory>()
         set(value) {
@@ -16,15 +16,24 @@ class InventoryViewAdapter()
             notifyDataSetChanged()
         }
 
-    class InventoryViewHolder(private val view: View)
+    class InventoryViewHolder(view: View)
             : RecyclerView.ViewHolder(view) {
-        val nameView: TextView = view.findViewById(R.id.nameText)
+        val nameView: TextView = view.nameText
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InventoryViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.inventory_item, parent,false)
-        return InventoryViewHolder(view)
+        val viewHolder = InventoryViewHolder(view)
+
+        view.setOnClickListener {
+            val position = viewHolder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                onClickListener(it, inventories[position])
+            }
+        }
+
+        return viewHolder
     }
 
     override fun getItemCount() = inventories.size

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -23,7 +24,9 @@ class MainActivity : AppCompatActivity() {
 
         // Create recycler view
         val viewManager = LinearLayoutManager(this)
-        viewAdapter = InventoryViewAdapter()
+        viewAdapter = InventoryViewAdapter { _, inventory ->
+            Toast.makeText(this, inventory.name, Toast.LENGTH_LONG).show()
+        }
 
         inventoriesView.apply {
             setHasFixedSize(true)
