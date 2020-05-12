@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [Inventory::class], version = 1, exportSchema = false)
 abstract class BrickListDatabase : RoomDatabase() {
-    abstract fun getInventoryDAO(): InventoryDao
+    abstract fun getInventoryDao(): InventoryDao
 
     companion object {
         private var INSTANCE: BrickListDatabase? = null

@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -12,25 +14,34 @@ import kotlinx.android.synthetic.main.content_main.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewAdapter: InventoryViewAdapter
+    private lateinit var inventoryViewModel: InventoryViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        // Create recycler view
         val viewManager = LinearLayoutManager(this)
         viewAdapter = InventoryViewAdapter()
-        viewAdapter.inventories = listOf(
-            Inventory().apply { name = "ASDF" },
-            Inventory().apply { name = "Name" },
-            Inventory().apply { name = "Some project" }
-        )
 
         inventoriesView.apply {
             setHasFixedSize(true)
             layoutManager = viewManager
             adapter = viewAdapter
         }
+
+        // Create view model
+        inventoryViewModel = ViewModelProvider(this)
+            .get(InventoryViewModel::class.java)
+
+        inventoryViewModel.inventories.observe(this, Observer {
+            viewAdapter.inventories = it
+        })
+
+        inventoryViewModel.insert(Inventory().apply { name = "ASDF" })
+        inventoryViewModel.insert(Inventory().apply { name = "Name" })
+        inventoryViewModel.insert(Inventory().apply { name = "Some project" })
 
         addInventoryButton.setOnClickListener {
             val intent = Intent(this, NewInventoryActivity::class.java)
