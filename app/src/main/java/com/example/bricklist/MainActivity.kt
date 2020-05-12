@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         val viewManager = LinearLayoutManager(this)
         viewAdapter = InventoryViewAdapter { _, inventory ->
             Toast.makeText(this, inventory.name, Toast.LENGTH_LONG).show()
+            startActivity(Intent(this,  PartsListActivity::class.java))
         }
 
         inventoriesView.apply {

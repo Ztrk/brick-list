@@ -13,6 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".PartsListActivity"
+            android:label="@string/title_activity_parts_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
             android:name=".NewInventoryActivity"
             android:label="@string/title_activity_new_inventory"
             android:theme="@style/AppTheme.NoActionBar" />
