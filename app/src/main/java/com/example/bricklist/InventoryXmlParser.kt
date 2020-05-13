@@ -1,5 +1,7 @@
 package com.example.bricklist
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.StringReader
@@ -8,12 +10,14 @@ import java.lang.IllegalStateException
 class InventoryXmlParser {
     private val namespace: String? = null
 
-    fun parse(xml: String): InventoryWithParts {
+    suspend fun parse(xml: String) = withContext(Dispatchers.Default) {
         val parser = XmlPullParserFactory.newInstance().newPullParser()
         val reader = StringReader(xml)
         parser.setInput(reader)
+        // StringReader cannot block, as it reads data from memory
+        @Suppress("BlockingMethodInNonBlockingContext")
         parser.nextTag()
-        return readInventory(parser)
+        readInventory(parser)
     }
 
     private fun readInventory(parser: XmlPullParser): InventoryWithParts {

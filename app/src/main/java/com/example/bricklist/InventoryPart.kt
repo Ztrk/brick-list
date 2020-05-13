@@ -17,17 +17,17 @@ data class InventoryPart(
 )
 
 data class InventoryPartWithReferences(
-    @Embedded val inventoryPart: InventoryPart = InventoryPart(),
+    @Embedded var inventoryPart: InventoryPart = InventoryPart(),
 
     @Relation(parentColumn = "ItemID", entityColumn = "id")
-    val item: Item = Item(),
+    var item: Item = Item(),
 
     @Relation(parentColumn = "ColorID", entityColumn = "id")
-    val color: Color = Color(),
+    var color: Color = Color(),
 
     @Relation(parentColumn = "TypeID", entityColumn = "id")
-    val itemType: ItemType = ItemType()
-    //val code: Code = Code()
+    var itemType: ItemType = ItemType(),
+    @Ignore var code: Code = Code()
 )
 
 @Dao
