@@ -35,7 +35,7 @@ class InventoryXmlParserTest {
                   <ITEMID>3001old</ITEMID>
                   <QTY>3</QTY>
                   <COLOR>7</COLOR>
-                  <EXTRA>N</EXTRA>
+                  <EXTRA>Y</EXTRA>
                   <ALTERNATE>N</ALTERNATE>
                   <MATCHID>0</MATCHID>
                   <COUNTERPART>N</COUNTERPART>
@@ -48,14 +48,14 @@ class InventoryXmlParserTest {
         assertEquals(2, inventory.parts.size)
 
         val part1 = InventoryPartWithReferences(
-            InventoryPart(quantityInSet = 1, alternate = "N", extra = "N"),
+            InventoryPart(quantityInSet = 1, alternate = "N", extra = 0),
             Item(code = "old012"),
             Color(code = 0),
             ItemType(code = "M")
         )
 
         val part2 = InventoryPartWithReferences(
-            InventoryPart(quantityInSet = 3, alternate = "N", extra = "N"),
+            InventoryPart(quantityInSet = 3, alternate = "N", extra = 1),
             Item(code = "3001old"),
             Color(code = 7),
             ItemType(code = "P")

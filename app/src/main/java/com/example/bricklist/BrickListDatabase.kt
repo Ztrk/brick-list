@@ -8,7 +8,12 @@ import androidx.room.RoomDatabase
 @Database(entities = [Inventory::class, InventoryPart::class, Code::class,
     Color::class, ItemType::class, Item::class], version = 1, exportSchema = false)
 abstract class BrickListDatabase : RoomDatabase() {
+
     abstract fun getInventoryDao(): InventoryDao
+
+    abstract fun getInventoryPartDao(): InventoryPartDao
+
+    abstract fun getBrickListDao(): BrickListDao
 
     companion object {
         private var INSTANCE: BrickListDatabase? = null
@@ -19,7 +24,9 @@ abstract class BrickListDatabase : RoomDatabase() {
                 return tmpInstance
             }
             val instance = Room.databaseBuilder(context,
-                BrickListDatabase::class.java, "BrickList.db").build()
+                BrickListDatabase::class.java, "BrickList.db")
+                .createFromAsset("BrickList.db")
+                .build()
             INSTANCE = instance
             return instance
         }

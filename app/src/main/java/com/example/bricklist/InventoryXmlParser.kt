@@ -43,12 +43,19 @@ class InventoryXmlParser {
                 continue
             }
             when (parser.name) {
-                "ITEMTYPE" -> inventoryPart.itemType.code = readText(parser, "ITEMTYPE")
-                "ITEMID" -> inventoryPart.item.code = readText(parser, "ITEMID")
-                "QTY" -> inventoryPart.inventoryPart.quantityInSet = readText(parser, "QTY").toInt()
-                "COLOR" -> inventoryPart.color.code = readText(parser, "COLOR").toInt()
-                "EXTRA" -> inventoryPart.inventoryPart.extra = readText(parser, "EXTRA")
-                "ALTERNATE" -> inventoryPart.inventoryPart.alternate = readText(parser, "ALTERNATE")
+                "ITEMTYPE" ->
+                    inventoryPart.itemType.code = readText(parser, "ITEMTYPE")
+                "ITEMID" ->
+                    inventoryPart.item.code = readText(parser, "ITEMID")
+                "QTY" ->
+                    inventoryPart.inventoryPart.quantityInSet = readText(parser, "QTY").toInt()
+                "COLOR" ->
+                    inventoryPart.color.code = readText(parser, "COLOR").toInt()
+                "EXTRA" ->
+                    inventoryPart.inventoryPart.extra =
+                        if (readText(parser, "EXTRA") == "Y") 1 else 0
+                "ALTERNATE" ->
+                    inventoryPart.inventoryPart.alternate = readText(parser, "ALTERNATE")
                 else -> skip(parser)
             }
         }

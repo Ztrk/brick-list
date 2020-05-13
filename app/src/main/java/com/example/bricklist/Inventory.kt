@@ -6,14 +6,20 @@ import java.util.*
 
 @Entity(tableName = "Inventories")
 data class Inventory(
+    @ColumnInfo(name = "Active") var active: Boolean = true,
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
-    var name: String = "",
-    var active: Boolean = true,
-    @Ignore var lastAccessed: Calendar = Calendar.getInstance()
+    @ColumnInfo(name = "Name") var name: String = "",
+    //var lastAccessed: Calendar = Calendar.getInstance()
+    @ColumnInfo(name = "LastAccessed") var lastAccessed: Int = 0
 )
 
 data class InventoryWithParts(
     val inventory: Inventory = Inventory(),
+    @Relation(
+        entity = InventoryPart::class,
+        parentColumn = "id",
+        entityColumn = "InventoryID"
+    )
     val parts: List<InventoryPartWithReferences> = listOf()
 )
 
