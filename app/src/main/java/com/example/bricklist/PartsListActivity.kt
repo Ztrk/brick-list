@@ -2,6 +2,8 @@ package com.example.bricklist
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import kotlinx.android.synthetic.main.activity_parts_list.*
@@ -16,26 +18,21 @@ class PartsListActivity : AppCompatActivity() {
 
         val viewManager = LinearLayoutManager(this)
         val viewAdapter = InventoryPartViewAdapter()
-        viewAdapter.inventoryParts = listOf(
-            InventoryPartWithReferences(
-                item = Item(name = "Name", code = "old3001"),
-                color = Color(name = "Red")
-            ),
-            InventoryPartWithReferences(
-                item = Item(name = "Some brick", code = "231"),
-                color = Color(name = "Yellow")
-            ),
-            InventoryPartWithReferences(
-                item = Item(name = "Flat piece", code = "222"),
-                color = Color(name = "Green")
-            )
-        )
 
         inventoryPartsView.apply {
             setHasFixedSize(true)
             layoutManager = viewManager
             adapter = viewAdapter
         }
+
+        val inventoryId = intent.getIntExtra("inventoryId", 0)
+        val factory = PartsListViewModel.Factory(application, inventoryId)
+        val viewModel = ViewModelProvider(this, factory).get(PartsListViewModel::class.java)
+
+        viewModel.inventoryParts.observe(this, Observer {
+            viewAdapter.inventoryParts = it
+        })
+
     }
 
 }

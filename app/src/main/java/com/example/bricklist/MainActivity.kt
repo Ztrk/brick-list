@@ -25,8 +25,9 @@ class MainActivity : AppCompatActivity() {
         // Create recycler view
         val viewManager = LinearLayoutManager(this)
         viewAdapter = InventoryViewAdapter { _, inventory ->
-            Toast.makeText(this, inventory.name, Toast.LENGTH_LONG).show()
-            startActivity(Intent(this,  PartsListActivity::class.java))
+            val intent = Intent(this, PartsListActivity::class.java)
+            intent.putExtra("inventoryId", inventory.id)
+            startActivity(intent)
         }
 
         inventoriesView.apply {
@@ -42,10 +43,6 @@ class MainActivity : AppCompatActivity() {
         inventoryViewModel.inventories.observe(this, Observer {
             viewAdapter.inventories = it
         })
-
-        inventoryViewModel.insert(Inventory().apply { name = "ASDF" })
-        inventoryViewModel.insert(Inventory().apply { name = "Name" })
-        inventoryViewModel.insert(Inventory().apply { name = "Some project" })
 
         addInventoryButton.setOnClickListener {
             val intent = Intent(this, NewInventoryActivity::class.java)
