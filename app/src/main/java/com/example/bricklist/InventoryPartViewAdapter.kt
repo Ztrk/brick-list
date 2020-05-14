@@ -1,8 +1,10 @@
 package com.example.bricklist
 
+import android.provider.Telephony
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.inventory_part_item.view.*
@@ -10,7 +12,7 @@ import kotlinx.android.synthetic.main.inventory_part_item.view.*
 class InventoryPartViewAdapter
     : RecyclerView.Adapter<InventoryPartViewAdapter.InventoryViewHolder>() {
 
-    var inventoryParts = listOf<InventoryPartWithReferences>()
+    var inventoryParts = listOf<InventoryPartData>()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -19,8 +21,9 @@ class InventoryPartViewAdapter
     class InventoryViewHolder(view: View)
             : RecyclerView.ViewHolder(view) {
         val nameText: TextView = view.nameText
-        val colorText: TextView = view.colorText
-        val codeText: TextView = view.codeText
+        val colorAndCodeText: TextView = view.colorAndCodeText
+        val quantityText: TextView = view.quantityText
+        val image: ImageView = view.brickImage
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InventoryViewHolder {
@@ -32,8 +35,14 @@ class InventoryPartViewAdapter
     override fun getItemCount() = inventoryParts.size
 
     override fun onBindViewHolder(holder: InventoryViewHolder, position: Int) {
-        holder.nameText.text = inventoryParts[position].item.name
-        holder.colorText.text = inventoryParts[position].color.name
-        holder.codeText.text = inventoryParts[position].item.code
+        holder.nameText.text = inventoryParts[position].nameText
+        holder.colorAndCodeText.text = inventoryParts[position].colorAndCodeText
+        holder.quantityText.text = inventoryParts[position].quantityText
     }
+
+    data class InventoryPartData(
+        val nameText: String,
+        val colorAndCodeText: String,
+        val quantityText: String
+    )
 }

@@ -6,12 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import java.lang.IllegalArgumentException
 
-class PartsListViewModel(application: Application, inventoryId: Int) : AndroidViewModel(application) {
+class PartsListViewModel(application: Application, inventoryId: Int)
+        : AndroidViewModel(application) {
+
     private val inventoryPartDao = BrickListDatabase.getDatabase(application).getInventoryPartDao()
 
     val inventoryParts = inventoryPartDao.getInventoryPartsById(inventoryId)
 
-    class Factory(private val application: Application, private val inventoryId: Int) : ViewModelProvider.Factory {
+    class Factory(private val application: Application, private val inventoryId: Int)
+            : ViewModelProvider.Factory {
+
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(PartsListViewModel::class.java)) {
                 return modelClass
