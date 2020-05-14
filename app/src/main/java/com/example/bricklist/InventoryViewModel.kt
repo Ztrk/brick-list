@@ -11,6 +11,6 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
     val inventories = dao.getInventories()
 
     fun insert(inventory: Inventory) = viewModelScope.launch {
-        dao.insert(inventory)
+        dao.insertInventory(inventory)
     }
 }

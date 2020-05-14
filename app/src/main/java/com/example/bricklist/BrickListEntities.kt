@@ -1,6 +1,5 @@
 package com.example.bricklist
 
-import android.graphics.Bitmap
 import androidx.room.*
 
 @Entity(tableName = "Codes")
@@ -40,15 +39,18 @@ data class Item(
 
 @Dao
 interface BrickListDao {
-    @Query("SELECT * FROM Codes WHERE itemId = :itemId AND colorId = :colorId")
-    suspend fun getCodeByIds(itemId: Int, colorId: Int): Code
+    @Insert
+    suspend fun insertCode(code: Code)
 
-    @Query("SELECT * FROM Colors WHERE code = :code")
-    suspend fun getColorByCode(code: Int): Color
+    @Query("SELECT * FROM Codes WHERE ItemID = :itemId AND ColorID = :colorId")
+    suspend fun getCodeByIds(itemId: Int, colorId: Int): Code?
 
-    @Query("SELECT * FROM ItemTypes WHERE code = :code")
-    suspend fun getItemTypeByCode(code: String): ItemType
+    @Query("SELECT * FROM Colors WHERE Code = :code")
+    suspend fun getColorByCode(code: Int): Color?
 
-    @Query("SELECT * FROM Parts WHERE code = :code")
-    suspend fun getItemByCode(code: Int): Item
+    @Query("SELECT * FROM ItemTypes WHERE Code = :code")
+    suspend fun getItemTypeByCode(code: String): ItemType?
+
+    @Query("SELECT * FROM Parts WHERE Code = :code")
+    suspend fun getItemByCode(code: String): Item?
 }

@@ -33,6 +33,9 @@ data class InventoryPartWithReferences(
 @Dao
 interface InventoryPartDao {
     @Transaction
-    @Query("SELECT * from inventoriesParts")
-    fun getInventoryParts() : LiveData<List<InventoryPartWithReferences>>
+    @Query("SELECT * FROM InventoriesParts WHERE InventoryID = :id")
+    fun getInventoryPartsById(id: Int) : LiveData<List<InventoryPartWithReferences>>
+
+    @Insert
+    fun insertInventoryParts(inventoryPart: List<InventoryPart>)
 }
