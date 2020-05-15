@@ -56,7 +56,8 @@ class PartsListActivity : AppCompatActivity() {
         return InventoryPartViewAdapter.InventoryPartData(
             part.item.name,
             colorAndCodeString,
-            quantityString
+            quantityString,
+            part.code.image
         )
     }
 

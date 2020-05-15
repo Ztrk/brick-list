@@ -1,12 +1,11 @@
 package com.example.bricklist
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
 
 @Database(entities = [Inventory::class, InventoryPart::class, Code::class,
     Color::class, ItemType::class, Item::class], version = 1, exportSchema = false)
+@TypeConverters(BitmapConverters::class)
 abstract class BrickListDatabase : RoomDatabase() {
 
     abstract fun getInventoryDao(): InventoryDao

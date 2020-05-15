@@ -1,5 +1,6 @@
 package com.example.bricklist
 
+import android.graphics.Bitmap
 import android.provider.Telephony
 import android.view.LayoutInflater
 import android.view.View
@@ -38,11 +39,16 @@ class InventoryPartViewAdapter
         holder.nameText.text = inventoryParts[position].nameText
         holder.colorAndCodeText.text = inventoryParts[position].colorAndCodeText
         holder.quantityText.text = inventoryParts[position].quantityText
+        val image = inventoryParts[position].image
+        if (image != null) {
+            holder.image.setImageBitmap(image)
+        }
     }
 
     data class InventoryPartData(
         val nameText: String,
         val colorAndCodeText: String,
-        val quantityText: String
+        val quantityText: String,
+        val image: Bitmap? = null
     )
 }

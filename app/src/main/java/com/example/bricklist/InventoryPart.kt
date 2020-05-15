@@ -27,13 +27,19 @@ data class InventoryPartWithReferences(
 
     @Relation(parentColumn = "TypeID", entityColumn = "id")
     var itemType: ItemType = ItemType(),
-    @Ignore var code: Code = Code()
+
+    @Embedded(prefix = "code_")
+    var code: Code = Code()
 )
 
 @Dao
 interface InventoryPartDao {
     @Transaction
-    @Query("SELECT * FROM InventoriesParts WHERE InventoryID = :id")
+    @Query("SELECT p.*, c.id AS code_id, c.ItemID AS code_ItemID, " +
+            "c.ColorID AS code_ColorID, c.Code AS code_Code, c.Image AS code_Image " +
+            "FROM InventoriesParts p JOIN Codes c " +
+            "ON p.ItemID = c.ItemID AND p.ColorID = c.ColorID " +
+            "WHERE InventoryID = :id")
     fun getInventoryPartsById(id: Int) : LiveData<List<InventoryPartWithReferences>>
 
     @Insert

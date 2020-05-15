@@ -1,6 +1,9 @@
 package com.example.bricklist
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.room.*
+import java.io.ByteArrayOutputStream
 
 @Entity(tableName = "Codes")
 data class Code(
@@ -8,8 +11,26 @@ data class Code(
     @ColumnInfo(name = "ItemID") val itemId: Int = 0,
     @ColumnInfo(name = "ColorID") val colorId: Int? = 0,
     @ColumnInfo(name = "Code") val code: Int? = 0,
-    @ColumnInfo(name = "Image") val image: ByteArray? = null
+    @ColumnInfo(name = "Image") val image: Bitmap? = null
 )
+
+class BitmapConverters {
+    @TypeConverter
+    fun fromByteArray(array: ByteArray?): Bitmap? {
+        if (array == null)
+            return null
+        return BitmapFactory.decodeByteArray(array, 0, array.size)
+    }
+
+    @TypeConverter
+    fun toByteArray(bitmap: Bitmap?): ByteArray? {
+        if (bitmap == null)
+            return null
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream)
+        return stream.toByteArray()
+    }
+}
 
 @Entity(tableName = "Colors")
 data class Color(
