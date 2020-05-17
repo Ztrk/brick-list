@@ -44,13 +44,13 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     private fun combine(parts: List<InventoryPartWithReferences>,
                         codes: MutableMap<Pair<Int, Int>, Code>)
             : List<InventoryPartWithReferences> {
-        val partsToFetch = mutableListOf<InventoryPart>()
+        val partsToFetch = mutableListOf<InventoryPartWithReferences>()
         parts.forEach { part ->
             val ids = Pair(part.item.id, part.color.id)
             if (ids !in codes) {
                 if (ids !in fetchedIds) {
                     fetchedIds.add(ids)
-                    partsToFetch.add(part.inventoryPart)
+                    partsToFetch.add(part)
                 }
             }
             else {
@@ -58,42 +58,54 @@ class PartsListViewModel(application: Application, inventoryId: Int)
             }
         }
         if (partsToFetch.isNotEmpty()) {
-            fetchCodes(partsToFetch, codes)
+            fetchCodes(partsToFetch)
         }
         return parts
     }
 
-    private fun fetchCodes(parts: List<InventoryPart>, codes: MutableMap<Pair<Int, Int>, Code>)
+    private fun fetchCodes(parts: List<InventoryPartWithReferences>)
             = viewModelScope.launch {
         for (part in parts) {
             launch {
-                fetchCode(part.itemId, part.colorId);
+                fetchCode(part.item, part.color)
             }
         }
     }
 
-    private suspend fun fetchCode(itemId: Int, colorId: Int) {
-        var code = brickListDao.getCodeByIds(itemId, colorId)
+    private suspend fun fetchCode(item: Item, color: Color) {
+        var code = brickListDao.getCodeByIds(item.id, color.id)
         if (code == null) {
-            code = Code(itemId = itemId, colorId = colorId)
+            code = Code(itemId = item.id, colorId = color.id)
             brickListDao.insertCode(code)
         }
 
         if (code.image == null) {
-            val url = "https://www.lego.com/service/bricks/5/2/${code.code}"
-            try {
-                val image = requests.requestImage(url, 400, 400)
-                val newCode = code.copy(image = image)
-                setCode(newCode)
-                brickListDao.updateCode(newCode)
-            }
-            catch (e: ClientError) {
-                println("Image not found at url: $url")
+            val urls = getUrls(code.code, item.code, color.code)
+            for (url in urls) {
+                try {
+                    val image = requests.requestImage(url, 400, 400)
+                    val newCode = code.copy(image = image)
+                    setCode(newCode)
+                    brickListDao.updateCode(newCode)
+                    break
+                }
+                catch (e: ClientError) {
+                    println("Image not found at url: $url")
+                }
             }
         }
         else {
             setCode(code)
         }
+    }
+
+    private fun getUrls(code: Int?, itemCode: String, colorCode: Int): List<String> {
+        val legoUrl = "https://www.lego.com/service/bricks/5/2/$code"
+        val brickLinkUrl = "https://img.bricklink.com/ItemImage/PN/$colorCode/$itemCode.png"
+        if (code != null) {
+            return listOf(legoUrl, brickLinkUrl)
+        }
+        return listOf(brickLinkUrl)
     }
 
     private fun setCode(code: Code) {
@@ -104,6 +116,7 @@ class PartsListViewModel(application: Application, inventoryId: Int)
             codes.postValue(codesData)
         }
     }
+
     class Factory(private val application: Application, private val inventoryId: Int)
             : ViewModelProvider.Factory {
 
