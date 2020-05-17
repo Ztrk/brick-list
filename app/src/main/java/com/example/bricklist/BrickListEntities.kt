@@ -10,7 +10,7 @@ data class Code(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "ItemID") val itemId: Int = 0,
     @ColumnInfo(name = "ColorID") val colorId: Int? = 0,
-    @ColumnInfo(name = "Code") val code: Int? = 0,
+    @ColumnInfo(name = "Code") val code: Int? = null,
     @ColumnInfo(name = "Image") val image: Bitmap? = null
 )
 
@@ -63,15 +63,18 @@ interface BrickListDao {
     @Insert
     suspend fun insertCode(code: Code)
 
-    @Query("SELECT * FROM Codes WHERE ItemID = :itemId AND ColorID = :colorId")
+    @Update
+    suspend fun updateCode(code: Code)
+
+    @Query("SELECT * FROM Codes WHERE ItemID = :itemId AND ColorID = :colorId LIMIT 1")
     suspend fun getCodeByIds(itemId: Int, colorId: Int): Code?
 
-    @Query("SELECT * FROM Colors WHERE Code = :code")
+    @Query("SELECT * FROM Colors WHERE Code = :code LIMIT 1")
     suspend fun getColorByCode(code: Int): Color?
 
-    @Query("SELECT * FROM ItemTypes WHERE Code = :code")
+    @Query("SELECT * FROM ItemTypes WHERE Code = :code LIMIT 1")
     suspend fun getItemTypeByCode(code: String): ItemType?
 
-    @Query("SELECT * FROM Parts WHERE Code = :code")
+    @Query("SELECT * FROM Parts WHERE Code = :code LIMIT 1")
     suspend fun getItemByCode(code: String): Item?
 }

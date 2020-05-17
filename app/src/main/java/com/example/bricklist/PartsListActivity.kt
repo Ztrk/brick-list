@@ -1,5 +1,6 @@
 package com.example.bricklist
 
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -35,6 +36,7 @@ class PartsListActivity : AppCompatActivity() {
 
         viewModel.inventoryParts.observe(this, Observer {
             viewAdapter.inventoryParts = it.map { part -> toViewAdapterData(part) }
+            println("Converted to view adapter data")
         })
 
     }
@@ -52,12 +54,17 @@ class PartsListActivity : AppCompatActivity() {
             part.inventoryPart.quantityInStore,
             part.inventoryPart.quantityInSet
         )
+        val image = part.code?.image
+        val drawable = if (image != null)
+            BitmapDrawable(resources, image)
+        else
+            getDrawable(R.drawable.ic_broken_image_black_24dp)
 
         return InventoryPartViewAdapter.InventoryPartData(
             part.item.name,
             colorAndCodeString,
             quantityString,
-            part.code.image
+            drawable
         )
     }
 
