@@ -36,7 +36,6 @@ class PartsListActivity : AppCompatActivity() {
 
         viewModel.inventoryParts.observe(this, Observer {
             viewAdapter.inventoryParts = it.map { part -> toViewAdapterData(part) }
-            println("Converted to view adapter data")
         })
 
     }

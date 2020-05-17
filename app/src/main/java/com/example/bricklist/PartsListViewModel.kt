@@ -1,22 +1,14 @@
 package com.example.bricklist
 
 import android.app.Application
-import android.graphics.Bitmap
-import android.widget.ImageView
 import androidx.lifecycle.*
 import com.android.volley.ClientError
-import com.android.volley.Response
-import com.android.volley.toolbox.ImageRequest
-import com.android.volley.toolbox.Volley
-import kotlinx.coroutines.*
-import java.lang.IllegalArgumentException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.launch
 
 class PartsListViewModel(application: Application, inventoryId: Int)
         : AndroidViewModel(application) {
 
-    private val queue = Volley.newRequestQueue(application)
+    private val requests = NetworkRequests.getInstance(application)
     private val inventoryPartDao: InventoryPartDao
     private val brickListDao: BrickListDao
 
@@ -52,7 +44,6 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     private fun combine(parts: List<InventoryPartWithReferences>,
                         codes: MutableMap<Pair<Int, Int>, Code>)
             : List<InventoryPartWithReferences> {
-        println("Data updated, doing combine")
         val partsToFetch = mutableListOf<InventoryPart>()
         parts.forEach { part ->
             val ids = Pair(part.item.id, part.color.id)
@@ -69,7 +60,6 @@ class PartsListViewModel(application: Application, inventoryId: Int)
         if (partsToFetch.isNotEmpty()) {
             fetchCodes(partsToFetch, codes)
         }
-        println("Combine done")
         return parts
     }
 
@@ -92,7 +82,8 @@ class PartsListViewModel(application: Application, inventoryId: Int)
         if (code.image == null) {
             val url = "https://www.lego.com/service/bricks/5/2/${code.code}"
             try {
-                val newCode = code.copy(image = requestImage(url))
+                val image = requests.requestImage(url, 400, 400)
+                val newCode = code.copy(image = image)
                 setCode(newCode)
                 brickListDao.updateCode(newCode)
             }
@@ -105,7 +96,7 @@ class PartsListViewModel(application: Application, inventoryId: Int)
         }
     }
 
-    private suspend fun setCode(code: Code) {
+    private fun setCode(code: Code) {
         val codesData = codes.value
         val ids = Pair(code.itemId, code.colorId ?: 0)
         if (codesData != null) {
@@ -113,23 +104,6 @@ class PartsListViewModel(application: Application, inventoryId: Int)
             codes.postValue(codesData)
         }
     }
-
-    private suspend fun requestImage(url: String): Bitmap = suspendCancellableCoroutine {
-        val imageRequest = ImageRequest(url,
-            Response.Listener { response ->
-                it.resume(response)
-            },
-            0, 0, ImageView.ScaleType.CENTER_INSIDE, Bitmap.Config.ARGB_8888,
-            Response.ErrorListener { error ->
-                it.resumeWithException(error)
-            }
-        )
-        it.invokeOnCancellation {
-            imageRequest.cancel()
-        }
-        queue.add(imageRequest)
-    }
-
     class Factory(private val application: Application, private val inventoryId: Int)
             : ViewModelProvider.Factory {
 

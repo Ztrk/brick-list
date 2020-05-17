@@ -5,20 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.VolleyError
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 class NewInventoryViewModel(application: Application) : AndroidViewModel(application) {
-    private val queue = Volley.newRequestQueue(application)
+    private val requests = NetworkRequests.getInstance(application)
     private val database = BrickListDatabase.getDatabase(application)
     private val brickListDao = database.getBrickListDao()
     private val inventoryDao = database.getInventoryDao()
@@ -30,7 +23,7 @@ class NewInventoryViewModel(application: Application) : AndroidViewModel(applica
 
     fun addInventory(url: String, name: String) = viewModelScope.launch {
         val response = try {
-            requestXml(url)
+            requests.requestString(url)
         }
         catch (error: VolleyError) {
             _result.value = error.toString()
@@ -50,22 +43,6 @@ class NewInventoryViewModel(application: Application) : AndroidViewModel(applica
         }
 
         _result.value = "New project was created"
-    }
-
-    private suspend fun requestXml(url: String): String = suspendCancellableCoroutine {
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            Response.Listener { response ->
-                it.resume(response)
-            },
-            Response.ErrorListener { error ->
-                it.resumeWithException(error)
-            }
-        )
-        it.invokeOnCancellation {
-            stringRequest.cancel()
-        }
-        queue.add(stringRequest)
     }
 
     private suspend fun insert(inventory: InventoryWithParts) = withContext(Dispatchers.IO) {
