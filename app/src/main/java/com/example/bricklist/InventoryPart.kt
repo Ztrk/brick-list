@@ -36,6 +36,9 @@ interface InventoryPartDao {
     @Query("SELECT * FROM InventoriesParts WHERE InventoryID = :id")
     fun getInventoryPartsById(id: Int) : LiveData<List<InventoryPartWithReferences>>
 
+    @Update
+    suspend fun updateInventoryPart(inventoryPart: InventoryPart)
+
     @Insert
-    fun insertInventoryParts(inventoryPart: List<InventoryPart>)
+    suspend fun insertInventoryParts(inventoryPart: List<InventoryPart>)
 }

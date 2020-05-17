@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.android.volley.ClientError
 import kotlinx.coroutines.launch
+import kotlin.math.max
+import kotlin.math.min
 
 class PartsListViewModel(application: Application, inventoryId: Int)
         : AndroidViewModel(application) {
@@ -37,6 +39,31 @@ class PartsListViewModel(application: Application, inventoryId: Int)
             val parts = _inventoryParts.value
             if (parts != null) {
                 inventoryParts.value = combine(parts, it)
+            }
+        }
+    }
+
+    fun incrementQuantity(position: Int) {
+        changeQuantity(position) { inStore, inSet ->
+            min(inStore + 1, inSet)
+        }
+    }
+
+    fun decrementQuantity(position: Int) {
+        changeQuantity(position) { inStore, _ ->
+            max(inStore - 1, 0)
+        }
+    }
+
+    private fun changeQuantity(position: Int, computeQuantity: (Int, Int) -> Int) {
+        val parts = inventoryParts.value
+        if (parts != null) {
+            val newPart = parts[position].inventoryPart.let {
+                val newQuantity = computeQuantity(it.quantityInStore, it.quantityInSet)
+                it.copy(quantityInStore = newQuantity)
+            }
+            viewModelScope.launch {
+                inventoryPartDao.updateInventoryPart(newPart)
             }
         }
     }

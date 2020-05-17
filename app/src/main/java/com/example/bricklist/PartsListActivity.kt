@@ -2,6 +2,7 @@ package com.example.bricklist
 
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -18,9 +19,23 @@ class PartsListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_parts_list)
         setSupportActionBar(toolbar)
 
-        val viewManager = LinearLayoutManager(this)
-        val viewAdapter = InventoryPartViewAdapter()
+        // Create view model
+        val inventoryId = intent.getIntExtra("inventoryId", 0)
+        val factory = PartsListViewModel.Factory(application, inventoryId)
+        val viewModel = ViewModelProvider(this, factory).get(PartsListViewModel::class.java)
 
+        // Create view adapter for recycler view
+        val viewManager = LinearLayoutManager(this)
+        val viewAdapter = InventoryPartViewAdapter(
+            onPlusButtonClickListener = { view, position ->
+                viewModel.incrementQuantity(position)
+            },
+            onMinusButtonClickListener = { view, position ->
+                viewModel.decrementQuantity(position)
+            }
+        )
+
+        // Create recycler view
         inventoryPartsView.apply {
             setHasFixedSize(true)
             layoutManager = viewManager
@@ -30,10 +45,7 @@ class PartsListActivity : AppCompatActivity() {
             addItemDecoration(itemDecoration)
         }
 
-        val inventoryId = intent.getIntExtra("inventoryId", 0)
-        val factory = PartsListViewModel.Factory(application, inventoryId)
-        val viewModel = ViewModelProvider(this, factory).get(PartsListViewModel::class.java)
-
+        // Create observer of inventory parts
         viewModel.inventoryParts.observe(this, Observer {
             viewAdapter.inventoryParts = it.map { part -> toViewAdapterData(part) }
         })
