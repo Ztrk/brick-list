@@ -20,7 +20,6 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     private val inventoryPartDao: InventoryPartDao
     private val brickListDao: BrickListDao
 
-
     init {
         val database = BrickListDatabase.getDatabase(application)
         inventoryPartDao = database.getInventoryPartDao()
@@ -30,6 +29,7 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     val inventoryParts = MediatorLiveData<List<InventoryPartWithReferences>>()
     private val _inventoryParts = inventoryPartDao.getInventoryPartsById(inventoryId)
     private val codes = MutableLiveData<HashMap<Pair<Int, Int>, Code>>(hashMapOf())
+    private val fetchedIds = hashSetOf<Pair<Int, Int>>()
 
     init {
         inventoryParts.addSource(_inventoryParts) {
@@ -53,21 +53,36 @@ class PartsListViewModel(application: Application, inventoryId: Int)
                         codes: MutableMap<Pair<Int, Int>, Code>)
             : List<InventoryPartWithReferences> {
         println("Data updated, doing combine")
+        val partsToFetch = mutableListOf<InventoryPart>()
         parts.forEach { part ->
             val ids = Pair(part.item.id, part.color.id)
             if (ids !in codes) {
-                codes[ids] = Code()
-                fetchCode(ids.first, ids.second)
+                if (ids !in fetchedIds) {
+                    fetchedIds.add(ids)
+                    partsToFetch.add(part.inventoryPart)
+                }
             }
             else {
                 part.code = codes[ids]
             }
         }
+        if (partsToFetch.isNotEmpty()) {
+            fetchCodes(partsToFetch, codes)
+        }
         println("Combine done")
         return parts
     }
 
-    private fun fetchCode(itemId: Int, colorId: Int) = viewModelScope.launch(Dispatchers.Main) {
+    private fun fetchCodes(parts: List<InventoryPart>, codes: MutableMap<Pair<Int, Int>, Code>)
+            = viewModelScope.launch {
+        for (part in parts) {
+            launch {
+                fetchCode(part.itemId, part.colorId);
+            }
+        }
+    }
+
+    private suspend fun fetchCode(itemId: Int, colorId: Int) {
         var code = brickListDao.getCodeByIds(itemId, colorId)
         if (code == null) {
             code = Code(itemId = itemId, colorId = colorId)
@@ -86,12 +101,11 @@ class PartsListViewModel(application: Application, inventoryId: Int)
             }
         }
         else {
-            println("Setting code, found in database")
             setCode(code)
         }
     }
 
-    private suspend fun setCode(code: Code) = withContext(Dispatchers.Main) {
+    private suspend fun setCode(code: Code) {
         val codesData = codes.value
         val ids = Pair(code.itemId, code.colorId ?: 0)
         if (codesData != null) {
