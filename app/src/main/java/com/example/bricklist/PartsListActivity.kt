@@ -1,6 +1,7 @@
 package com.example.bricklist
 
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -27,10 +28,10 @@ class PartsListActivity : AppCompatActivity() {
         // Create view adapter for recycler view
         val viewManager = LinearLayoutManager(this)
         val viewAdapter = InventoryPartViewAdapter(
-            onPlusButtonClickListener = { view, position ->
+            onPlusButtonClickListener = { _, position ->
                 viewModel.incrementQuantity(position)
             },
-            onMinusButtonClickListener = { view, position ->
+            onMinusButtonClickListener = { _, position ->
                 viewModel.decrementQuantity(position)
             }
         )
@@ -66,16 +67,26 @@ class PartsListActivity : AppCompatActivity() {
             part.inventoryPart.quantityInSet
         )
         val image = part.code?.image
-        val drawable = if (image != null)
-            BitmapDrawable(resources, image)
-        else
-            getDrawable(R.drawable.ic_broken_image_black_24dp)
+        val drawable =
+            if (image != null) {
+                BitmapDrawable(resources, image)
+            } else {
+                getDrawable(R.drawable.ic_broken_image_black_24dp)
+            }
+
+        val background =
+            if (part.inventoryPart.quantityInSet == part.inventoryPart.quantityInStore) {
+                getDrawable(R.color.colorCompleted)
+            } else {
+                ColorDrawable(0)
+            }
 
         return InventoryPartViewAdapter.InventoryPartData(
             part.item.name,
             colorAndCodeString,
             quantityString,
-            drawable
+            drawable,
+            background
         )
     }
 

@@ -20,7 +20,7 @@ class InventoryPartViewAdapter(private val onPlusButtonClickListener: (View, Int
             notifyDataSetChanged()
         }
 
-    class InventoryViewHolder(view: View)
+    class InventoryViewHolder(val view: View)
             : RecyclerView.ViewHolder(view) {
         val nameText: TextView = view.nameText
         val colorAndCodeText: TextView = view.colorAndCodeText
@@ -57,9 +57,11 @@ class InventoryPartViewAdapter(private val onPlusButtonClickListener: (View, Int
         holder.nameText.text = inventoryParts[position].nameText
         holder.colorAndCodeText.text = inventoryParts[position].colorAndCodeText
         holder.quantityText.text = inventoryParts[position].quantityText
-        val drawable = inventoryParts[position].image
-        if (drawable != null) {
-            holder.image.setImageDrawable(inventoryParts[position].image)
+        inventoryParts[position].image?.let {
+            holder.image.setImageDrawable(it)
+        }
+        inventoryParts[position].background?.let {
+            holder.view.background = it
         }
     }
 
@@ -67,6 +69,7 @@ class InventoryPartViewAdapter(private val onPlusButtonClickListener: (View, Int
         val nameText: String,
         val colorAndCodeText: String,
         val quantityText: String,
-        val image: Drawable? = null
+        val image: Drawable? = null,
+        val background: Drawable? = null
     )
 }
