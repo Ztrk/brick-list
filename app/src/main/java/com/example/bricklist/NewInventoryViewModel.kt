@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.android.volley.VolleyError
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -50,29 +51,32 @@ class NewInventoryViewModel(application: Application) : AndroidViewModel(applica
 
         _result.postValue(inventoryId.toString())
 
-        val inventoryParts = inventory.parts.mapNotNull { part ->
-            val color = brickListDao.getColorByCode(part.color.code)
-            val item = brickListDao.getItemByCode(part.item.code)
-            if (item == null || color == null) {
-                return@mapNotNull null
-            }
+        val inventoryDeferred = inventory.parts.map { part ->
+            async {
+                val color = brickListDao.getColorByCode(part.color.code)
+                val item = brickListDao.getItemByCode(part.item.code)
+                if (item == null || color == null) {
+                    return@async null
+                }
 
-            var itemType = brickListDao.getItemTypeByCode(part.itemType.code)
-            if (itemType == null) {
-                itemType = part.itemType
-            }
+                var itemType = brickListDao.getItemTypeByCode(part.itemType.code)
+                if (itemType == null) {
+                    itemType = part.itemType
+                }
 
-            var code = brickListDao.getCodeByIds(item.id, color.id)
-            if (code == null) {
-                code = Code(itemId = item.id, colorId = color.id)
-                brickListDao.insertCode(code)
-            }
+                var code = brickListDao.getCodeByIds(item.id, color.id)
+                if (code == null) {
+                    code = Code(itemId = item.id, colorId = color.id)
+                    brickListDao.insertCode(code)
+                }
 
-            return@mapNotNull part.inventoryPart.copy(
-                inventoryId = inventoryId, colorId = color.id,
-                itemId =  item.id, typeId = itemType.id
-            )
+                return@async part.inventoryPart.copy(
+                    inventoryId = inventoryId, colorId = color.id,
+                    itemId =  item.id, typeId = itemType.id
+                )
+            }
         }
+        val inventoryParts = inventoryDeferred.mapNotNull { deferred -> deferred.await() }
         inventoryPartDao.insertInventoryParts(inventoryParts)
     }
 }
