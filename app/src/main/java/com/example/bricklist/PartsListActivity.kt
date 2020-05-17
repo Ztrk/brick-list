@@ -3,6 +3,8 @@ package com.example.bricklist
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -88,6 +90,25 @@ class PartsListActivity : AppCompatActivity() {
             drawable,
             background
         )
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_parts_list, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return when(item.itemId) {
+            R.id.actionExport -> {
+                val toast = Toast.makeText(this, "Export clicked", Toast.LENGTH_SHORT)
+                toast.show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
 }
