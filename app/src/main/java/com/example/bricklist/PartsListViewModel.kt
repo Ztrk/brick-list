@@ -3,9 +3,13 @@ package com.example.bricklist
 import android.app.Application
 import androidx.lifecycle.*
 import com.android.volley.ClientError
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import kotlin.math.max
 import kotlin.math.min
+
+const val EXPORT_PATH = "exports/export.xml"
 
 class PartsListViewModel(application: Application, inventoryId: Int)
         : AndroidViewModel(application) {
@@ -24,6 +28,10 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     private val _inventoryParts = inventoryPartDao.getInventoryPartsById(inventoryId)
     private val codes = MutableLiveData<HashMap<Pair<Int, Int>, Code>>(hashMapOf())
     private val fetchedIds = hashSetOf<Pair<Int, Int>>()
+
+    private val _exportReady = MutableLiveData(false)
+    val exportReady: LiveData<Boolean>
+        get() = _exportReady
 
     init {
         inventoryParts.addSource(_inventoryParts) {
@@ -64,6 +72,23 @@ class PartsListViewModel(application: Application, inventoryId: Int)
             }
             viewModelScope.launch {
                 inventoryPartDao.updateInventoryPart(newPart)
+            }
+        }
+    }
+
+    fun handledExport() {
+        _exportReady.value = false
+    }
+
+    fun exportToXml() {
+        inventoryParts.value?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                val serializer = InventoryPartsXmlSerializer()
+                val file = File(getApplication<Application>().filesDir, EXPORT_PATH)
+                file.parentFile?.mkdirs()
+                file.createNewFile()
+                serializer.serialize(it, InventoryPartsXmlSerializer.Condition.NOT_IMPORTANT, file)
+                _exportReady.postValue(true)
             }
         }
     }

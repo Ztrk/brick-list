@@ -15,7 +15,7 @@
         <activity
             android:name=".PartsListActivity"
             android:label="@string/title_activity_parts_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".NewInventoryActivity"
             android:label="@string/title_activity_new_inventory"
@@ -30,6 +30,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.example.bricklist.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/files_to_share" />
+        </provider>
     </application>
 
 </manifest>

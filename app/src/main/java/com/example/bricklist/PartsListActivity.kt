@@ -1,12 +1,17 @@
 package com.example.bricklist
 
+import android.content.ClipData
+import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -14,8 +19,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 
 import kotlinx.android.synthetic.main.activity_parts_list.*
 import kotlinx.android.synthetic.main.content_parts_list.*
+import java.io.File
 
 class PartsListActivity : AppCompatActivity() {
+
+    private lateinit var viewModel: PartsListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +33,7 @@ class PartsListActivity : AppCompatActivity() {
         // Create view model
         val inventoryId = intent.getIntExtra("inventoryId", 0)
         val factory = PartsListViewModel.Factory(application, inventoryId)
-        val viewModel = ViewModelProvider(this, factory).get(PartsListViewModel::class.java)
+        viewModel = ViewModelProvider(this, factory).get(PartsListViewModel::class.java)
 
         // Create view adapter for recycler view
         val viewManager = LinearLayoutManager(this)
@@ -53,6 +61,28 @@ class PartsListActivity : AppCompatActivity() {
             viewAdapter.inventoryParts = it.map { part -> toViewAdapterData(part) }
         })
 
+        viewModel.exportReady.observe(this, Observer {
+            if (it) {
+                exportData()
+                viewModel.handledExport()
+            }
+        })
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_parts_list, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.actionExport -> {
+                viewModel.exportToXml()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun toViewAdapterData(part: InventoryPartWithReferences)
@@ -92,23 +122,28 @@ class PartsListActivity : AppCompatActivity() {
         )
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_parts_list, menu)
-        return true
-    }
+    private fun exportData() {
+        val file = File(this.filesDir, EXPORT_PATH)
+        val uri = FileProvider.getUriForFile(this,
+            "com.example.bricklist.fileprovider", file)
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when(item.itemId) {
-            R.id.actionExport -> {
-                val toast = Toast.makeText(this, "Export clicked", Toast.LENGTH_SHORT)
-                toast.show()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+        val intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            type = "text/xml"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            clipData = ClipData.newUri(contentResolver, "XML - BrickLink Wanted list", uri)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+
+        val title = "Export XML (Wanted List) to:"
+        val chooser = Intent.createChooser(intent, title)
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(chooser)
+        }
+        else {
+            val toast = Toast.makeText(this,
+                "No applications to handle export", Toast.LENGTH_SHORT)
+            toast.show()
         }
     }
-
 }

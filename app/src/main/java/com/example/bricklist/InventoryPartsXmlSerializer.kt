@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.BufferedOutputStream
+import java.io.File
 import java.io.FileOutputStream
 
 class InventoryPartsXmlSerializer {
@@ -11,10 +12,11 @@ class InventoryPartsXmlSerializer {
     private val namespace: String? = null
 
     suspend fun serialize(parts: List<InventoryPartWithReferences>, condition: Condition,
-                          file: String) = withContext(Dispatchers.IO) {
+                          file: File) = withContext(Dispatchers.IO) {
         val stream = BufferedOutputStream(FileOutputStream(file))
         serializer.setOutput(stream, "UTF-8")
         write(parts, condition)
+        stream.close()
     }
 
     private fun write(parts: List<InventoryPartWithReferences>, condition: Condition) {
