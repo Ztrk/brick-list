@@ -20,17 +20,20 @@ class InventoryPartsXmlSerializer {
     }
 
     private fun write(parts: List<InventoryPartWithReferences>, condition: Condition) {
-        serializer.startDocument("UTF-8", true)
+        serializer.startDocument("UTF-8", null)
+        serializer.ignorableWhitespace("\n")
         writeInventory(parts, condition)
         serializer.endDocument()
     }
 
     private fun writeInventory(parts: List<InventoryPartWithReferences>, condition: Condition) {
         serializer.startTag(namespace, Tag.INVENTORY)
+        serializer.ignorableWhitespace("\n")
         for (part in parts) {
             writePart(part, condition)
         }
         serializer.endTag(namespace, Tag.INVENTORY)
+        serializer.ignorableWhitespace("\n")
     }
 
     private fun writePart(part: InventoryPartWithReferences, condition: Condition) {
@@ -41,6 +44,7 @@ class InventoryPartsXmlSerializer {
 
         if (needed > 0) {
             serializer.startTag(namespace, Tag.ITEM)
+            serializer.ignorableWhitespace("\n")
 
             writeTag(Tag.ITEMTYPE, part.itemType.code)
             writeTag(Tag.ITEMID, part.item.code)
@@ -52,6 +56,7 @@ class InventoryPartsXmlSerializer {
             }
 
             serializer.endTag(namespace, Tag.ITEM)
+            serializer.ignorableWhitespace("\n")
         }
     }
 
@@ -59,6 +64,7 @@ class InventoryPartsXmlSerializer {
         serializer.startTag(namespace, tag)
         serializer.text(value)
         serializer.endTag(namespace, tag)
+        serializer.ignorableWhitespace("\n")
     }
 
     enum class Condition(val value: String) {
