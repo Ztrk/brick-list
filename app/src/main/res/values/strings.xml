@@ -11,4 +11,14 @@
     <string name="brick_image_description">Image of lego brick</string>
     <string name="plus_button_description">Plus button, add 1 to found bricks</string>
     <string name="minus_button_description">Minus button, remove 1 from found bricks</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Preferences -->
+    <string name="general_header">General</string>
+
+    <string name="url_prefix_title">URL prefix</string>
+    <string name="archived_title">Archived</string>
+    <string name="archived_summary_on">Show archived</string>
+    <string name="archived_summary_off">Do not show archived</string>
+    <string name="condition_title">Condition</string>
 </resources>
