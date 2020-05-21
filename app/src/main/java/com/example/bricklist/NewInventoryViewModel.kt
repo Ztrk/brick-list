@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.preference.PreferenceManager
 import com.android.volley.VolleyError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -18,11 +19,15 @@ class NewInventoryViewModel(application: Application) : AndroidViewModel(applica
     private val inventoryDao = database.getInventoryDao()
     private val inventoryPartDao = database.getInventoryPartDao()
 
+    private val urlPrefix = PreferenceManager.getDefaultSharedPreferences(application)
+        .getString("url_prefix", "http://fcds.cs.put.poznan.pl/MyWeb/BL/")
+
     private val _result = MutableLiveData("")
     val result: LiveData<String>
         get() = _result
 
-    fun addInventory(url: String, name: String) = viewModelScope.launch {
+    fun addInventory(setNumber: String, name: String) = viewModelScope.launch {
+        val url = "$urlPrefix$setNumber.xml"
         val response = try {
             requests.requestString(url)
         }

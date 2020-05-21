@@ -24,8 +24,7 @@ class NewInventoryActivity : AppCompatActivity() {
         addButton.setOnClickListener {
             val setNumber = setNumberEdit.text
             val name = nameEdit.text.toString()
-            val url = "http://fcds.cs.put.poznan.pl/MyWeb/BL/$setNumber.xml"
-            viewModel.addInventory(url, name)
+            viewModel.addInventory(setNumber.toString(), name)
         }
 
         viewModel.result.observe(this, Observer {

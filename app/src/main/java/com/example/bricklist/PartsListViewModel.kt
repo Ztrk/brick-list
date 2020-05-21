@@ -2,6 +2,7 @@ package com.example.bricklist
 
 import android.app.Application
 import androidx.lifecycle.*
+import androidx.preference.PreferenceManager
 import com.android.volley.ClientError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +29,9 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     private val _inventoryParts = inventoryPartDao.getInventoryPartsById(inventoryId)
     private val codes = MutableLiveData<HashMap<Pair<Int, Int>, Code>>(hashMapOf())
     private val fetchedIds = hashSetOf<Pair<Int, Int>>()
+
+    private val condition = PreferenceManager.getDefaultSharedPreferences(application)
+        .getString("condition", "not_important")
 
     private val _exportReady = MutableLiveData(false)
     val exportReady: LiveData<Boolean>
@@ -83,11 +87,16 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     fun exportToXml() {
         inventoryParts.value?.let {
             viewModelScope.launch(Dispatchers.IO) {
+                val condition = when (condition) {
+                    "new" -> InventoryPartsXmlSerializer.Condition.NEW
+                    "used" -> InventoryPartsXmlSerializer.Condition.USED
+                    else -> InventoryPartsXmlSerializer.Condition.NOT_IMPORTANT
+                }
                 val serializer = InventoryPartsXmlSerializer()
                 val file = File(getApplication<Application>().filesDir, EXPORT_PATH)
                 file.parentFile?.mkdirs()
                 file.createNewFile()
-                serializer.serialize(it, InventoryPartsXmlSerializer.Condition.NOT_IMPORTANT, file)
+                serializer.serialize(it, condition, file)
                 _exportReady.postValue(true)
             }
         }
