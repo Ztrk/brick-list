@@ -14,7 +14,7 @@ data class Code(
     @ColumnInfo(name = "Image") val image: Bitmap? = null
 )
 
-class BitmapConverters {
+class BitmapConverter {
     @TypeConverter
     fun fromByteArray(array: ByteArray?): Bitmap? {
         if (array == null)

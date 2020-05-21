@@ -26,7 +26,7 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
                     it.filter { inventory -> inventory.active }
                 else
                     it
-            newInventories.sortedByDescending { inventory -> inventory.lastAccessed }
+            newInventories.sortedByDescending { inventory -> inventory.lastAccessed.time }
         }
     }
 
@@ -35,7 +35,7 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
             val inventory = it[position]
             lastArchived = inventory
             viewModelScope.launch {
-                dao.updateInventory(inventory.copy(active=false))
+                dao.updateInventory(inventory.copy(active = false))
             }
             return inventory
         }
@@ -43,7 +43,7 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun dearchive() {
-        val newInventory = lastArchived?.copy(active=true)
+        val newInventory = lastArchived?.copy(active = true)
         newInventory?.let {
             viewModelScope.launch {
                 dao.updateInventory(newInventory)

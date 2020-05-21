@@ -82,8 +82,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         clickedItem?.setBackgroundColor(0)
         val showArchived = PreferenceManager.getDefaultSharedPreferences(application)
             .getBoolean("archived", false)
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun createSwipeHelper(): ItemTouchHelper {
+    private fun createSwipeHelper(): ItemTouchHelper {
         return ItemTouchHelper(
             object : ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {

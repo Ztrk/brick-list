@@ -5,7 +5,7 @@ import androidx.room.*
 
 @Database(entities = [Inventory::class, InventoryPart::class, Code::class,
     Color::class, ItemType::class, Item::class], version = 1, exportSchema = false)
-@TypeConverters(BitmapConverters::class)
+@TypeConverters(BitmapConverter::class, DateConverter::class)
 abstract class BrickListDatabase : RoomDatabase() {
 
     abstract fun getInventoryDao(): InventoryDao

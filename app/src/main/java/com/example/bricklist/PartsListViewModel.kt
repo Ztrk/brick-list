@@ -7,6 +7,8 @@ import com.android.volley.ClientError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.*
+import kotlin.collections.HashMap
 import kotlin.math.max
 import kotlin.math.min
 
@@ -18,17 +20,29 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     private val requests = NetworkRequests.getInstance(application)
     private val inventoryPartDao: InventoryPartDao
     private val brickListDao: BrickListDao
+    private val inventoryDao: InventoryDao
 
     init {
         val database = BrickListDatabase.getDatabase(application)
         inventoryPartDao = database.getInventoryPartDao()
         brickListDao = database.getBrickListDao()
+        inventoryDao = database.getInventoryDao()
     }
 
     val inventoryParts = MediatorLiveData<List<InventoryPartWithReferences>>()
     private val _inventoryParts = inventoryPartDao.getInventoryPartsById(inventoryId)
     private val codes = MutableLiveData<HashMap<Pair<Int, Int>, Code>>(hashMapOf())
     private val fetchedIds = hashSetOf<Pair<Int, Int>>()
+
+    private var inventory: Inventory? = null
+
+    init {
+        viewModelScope.launch {
+            val tmpInventory = inventoryDao.getInventoryById(inventoryId)
+            inventory = tmpInventory
+            inventoryDao.updateInventory(tmpInventory.copy(lastAccessed = Date()))
+        }
+    }
 
     private val condition = PreferenceManager.getDefaultSharedPreferences(application)
         .getString("condition", "not_important")
@@ -98,6 +112,14 @@ class PartsListViewModel(application: Application, inventoryId: Int)
                 file.createNewFile()
                 serializer.serialize(it, condition, file)
                 _exportReady.postValue(true)
+            }
+        }
+    }
+
+    fun updateDate() {
+        inventory?.let {
+            viewModelScope.launch {
+                inventoryDao.updateInventory(it.copy(lastAccessed = Date()))
             }
         }
     }
