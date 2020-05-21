@@ -2,7 +2,6 @@ package com.example.bricklist
 
 import android.app.Application
 import androidx.lifecycle.*
-import androidx.preference.PreferenceManager
 import kotlinx.coroutines.launch
 
 class InventoryViewModel(application: Application) : AndroidViewModel(application) {
@@ -12,6 +11,8 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
     private val _showArchived = MutableLiveData(false)
     val showArchived: LiveData<Boolean>
         get() = _showArchived
+
+    private var lastArchived: Inventory? = null
 
     fun setArchive(value: Boolean) {
         _showArchived.value = value
@@ -29,11 +30,23 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun archive(position: Int) {
+    fun archive(position: Int): Inventory? {
         inventories.value?.let {
             val inventory = it[position]
+            lastArchived = inventory
             viewModelScope.launch {
                 dao.updateInventory(inventory.copy(active=false))
+            }
+            return inventory
+        }
+        return null
+    }
+
+    fun dearchive() {
+        val newInventory = lastArchived?.copy(active=true)
+        newInventory?.let {
+            viewModelScope.launch {
+                dao.updateInventory(newInventory)
             }
         }
     }

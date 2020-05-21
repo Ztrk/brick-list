@@ -15,9 +15,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import kotlinx.android.synthetic.main.content_parts_list.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -61,22 +61,7 @@ class MainActivity : AppCompatActivity() {
             addItemDecoration(itemDecoration)
         }
 
-        val swipeHelper = ItemTouchHelper(
-            object : ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-                override fun onMove(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    target: RecyclerView.ViewHolder
-                ): Boolean {
-                    return false
-                }
-
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    inventoryViewModel.archive(viewHolder.adapterPosition)
-                }
-            }
-        )
+        val swipeHelper = createSwipeHelper()
 
         // Add swiping
         inventoryViewModel.showArchived.observe(this, Observer {
@@ -118,5 +103,35 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    fun createSwipeHelper(): ItemTouchHelper {
+        return ItemTouchHelper(
+            object : ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val inventory = inventoryViewModel.archive(viewHolder.adapterPosition)
+                    inventory?.let {
+                        val snackbar = Snackbar.make(
+                            coordinatorLayout,
+                            getString(R.string.archived_message, inventory.name),
+                            Snackbar.LENGTH_LONG
+                        )
+                        snackbar.setAction(R.string.archived_undo_action) {
+                            inventoryViewModel.dearchive()
+                        }
+                        snackbar.show()
+                    }
+                }
+            }
+        )
     }
 }
