@@ -1,19 +1,31 @@
 <resources>
     <string name="app_name">BrickList</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_new_inventory">NewInventoryActivity</string>
+    <string name="title_activity_new_inventory">New Project</string>
 
-    <string name="title_activity_parts_list">PartsListActivity</string>
-    <string name="action_export">Export to XML(wanted list)</string>
+    <!-- List of parts -->
+    <string name="title_activity_parts_list">List of parts</string>
 
     <string name="quantity_string">%1$d of %2$d</string>
     <string name="color_and_code_string">%1$s [%2$s]</string>
     <string name="brick_image_description">Image of lego brick</string>
     <string name="plus_button_description">Plus button, add 1 to found bricks</string>
     <string name="minus_button_description">Minus button, remove 1 from found bricks</string>
-    <string name="title_activity_settings">Settings</string>
+
+    <!-- Export -->
+    <string name="action_export">Export to XML (Wanted List)</string>
+    <string name="export_chooser_title">Export XML (Wanted List) to:</string>
+    <string name="export_no_application">No application to handle export</string>
+    <string name="export_uri_label">XML - BrickLink Wanted List</string>
+
+    <!-- New inventory -->
+    <string name="set_number_hint">Set number</string>
+    <string name="name_hint">Name</string>
+    <string name="add_button_text">Add</string>
+    <string name="check_button_text">Check</string>
 
     <!-- Preferences -->
+    <string name="title_activity_settings">Settings</string>
     <string name="general_header">General</string>
 
     <string name="url_prefix_title">URL prefix</string>

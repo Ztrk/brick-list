@@ -4,19 +4,16 @@ import android.content.ClipData
 import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-
 import kotlinx.android.synthetic.main.activity_parts_list.*
 import kotlinx.android.synthetic.main.content_parts_list.*
 import java.io.File
@@ -131,18 +128,18 @@ class PartsListActivity : AppCompatActivity() {
             action = Intent.ACTION_SEND
             type = "text/xml"
             putExtra(Intent.EXTRA_STREAM, uri)
-            clipData = ClipData.newUri(contentResolver, "XML - BrickLink Wanted list", uri)
+            clipData = ClipData.newUri(contentResolver, getString(R.string.export_uri_label), uri)
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
 
-        val title = "Export XML (Wanted List) to:"
+        val title = getString(R.string.export_chooser_title)
         val chooser = Intent.createChooser(intent, title)
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(chooser)
         }
         else {
             val toast = Toast.makeText(this,
-                "No applications to handle export", Toast.LENGTH_SHORT)
+                R.string.export_no_application, Toast.LENGTH_SHORT)
             toast.show()
         }
     }
