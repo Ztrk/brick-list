@@ -27,6 +27,9 @@ interface InventoryDao {
     @Query("SELECT * FROM Inventories")
     fun getInventories(): LiveData<List<Inventory>>
 
+    @Update
+    suspend fun updateInventory(inventory: Inventory)
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertInventory(inventory: Inventory): Long
 }

@@ -10,10 +10,14 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.content_parts_list.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +30,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        // Create view model
+        inventoryViewModel = ViewModelProvider(this)
+            .get(InventoryViewModel::class.java)
 
         // Create recycler view
         val viewManager = LinearLayoutManager(this)
@@ -53,9 +61,31 @@ class MainActivity : AppCompatActivity() {
             addItemDecoration(itemDecoration)
         }
 
-        // Create view model
-        inventoryViewModel = ViewModelProvider(this)
-            .get(InventoryViewModel::class.java)
+        val swipeHelper = ItemTouchHelper(
+            object : ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    inventoryViewModel.archive(viewHolder.adapterPosition)
+                }
+            }
+        )
+
+        // Add swiping
+        inventoryViewModel.showArchived.observe(this, Observer {
+            if (!it) {
+                swipeHelper.attachToRecyclerView(inventoriesView)
+            } else {
+                swipeHelper.attachToRecyclerView(null)
+            }
+        })
 
         inventoryViewModel.inventories.observe(this, Observer {
             viewAdapter.inventories = it
@@ -70,6 +100,9 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         clickedItem?.setBackgroundColor(0)
+        val showArchived = PreferenceManager.getDefaultSharedPreferences(application)
+            .getBoolean("archived", false)
+        inventoryViewModel.setArchive(showArchived)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
