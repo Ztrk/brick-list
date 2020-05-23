@@ -3,12 +3,10 @@ package com.example.bricklist
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
-import com.android.volley.ClientError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.math.max
 import kotlin.math.min
 
@@ -17,30 +15,21 @@ const val EXPORT_PATH = "exports/export.xml"
 class PartsListViewModel(application: Application, inventoryId: Int)
         : AndroidViewModel(application) {
 
-    private val requests = NetworkRequests.getInstance(application)
-    private val inventoryPartDao: InventoryPartDao
-    private val brickListDao: BrickListDao
-    private val inventoryDao: InventoryDao
+    private val repository = InventoryRepository.getInstance(
+        BrickListDatabase.getDatabase(application),
+        NetworkRequests.getInstance(application)
+    )
 
-    init {
-        val database = BrickListDatabase.getDatabase(application)
-        inventoryPartDao = database.getInventoryPartDao()
-        brickListDao = database.getBrickListDao()
-        inventoryDao = database.getInventoryDao()
-    }
-
-    val inventoryParts = MediatorLiveData<List<InventoryPartWithReferences>>()
-    private val _inventoryParts = inventoryPartDao.getInventoryPartsById(inventoryId)
-    private val codes = MutableLiveData<HashMap<Pair<Int, Int>, Code>>(hashMapOf())
-    private val fetchedIds = hashSetOf<Pair<Int, Int>>()
+    val inventoryParts: LiveData<List<InventoryPartWithReferences>>
+            = repository.getInventoryParts(inventoryId)
 
     private var inventory: Inventory? = null
 
     init {
         viewModelScope.launch {
-            val tmpInventory = inventoryDao.getInventoryById(inventoryId)
+            val tmpInventory = repository.getInventoryById(inventoryId)
             inventory = tmpInventory
-            inventoryDao.updateInventory(tmpInventory.copy(lastAccessed = Date()))
+            repository.updateInventory(tmpInventory.copy(lastAccessed = Date()))
         }
     }
 
@@ -50,24 +39,6 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     private val _exportReady = MutableLiveData(false)
     val exportReady: LiveData<Boolean>
         get() = _exportReady
-
-    init {
-        inventoryParts.addSource(_inventoryParts) {
-            val codesData = codes.value
-            if (codesData != null) {
-                inventoryParts.value = combine(it, codesData)
-            }
-            else {
-                inventoryParts.value = it
-            }
-        }
-        inventoryParts.addSource(codes) {
-            val parts = _inventoryParts.value
-            if (parts != null) {
-                inventoryParts.value = combine(parts, it)
-            }
-        }
-    }
 
     fun incrementQuantity(position: Int) {
         changeQuantity(position) { inStore, inSet ->
@@ -89,7 +60,7 @@ class PartsListViewModel(application: Application, inventoryId: Int)
                 it.copy(quantityInStore = newQuantity)
             }
             viewModelScope.launch {
-                inventoryPartDao.updateInventoryPart(newPart)
+                repository.updateInventoryPart(newPart)
             }
         }
     }
@@ -119,84 +90,8 @@ class PartsListViewModel(application: Application, inventoryId: Int)
     fun updateDate() {
         inventory?.let {
             viewModelScope.launch {
-                inventoryDao.updateInventory(it.copy(lastAccessed = Date()))
+                repository.updateInventory(it.copy(lastAccessed = Date()))
             }
-        }
-    }
-
-    private fun combine(parts: List<InventoryPartWithReferences>,
-                        codes: MutableMap<Pair<Int, Int>, Code>)
-            : List<InventoryPartWithReferences> {
-        val partsToFetch = mutableListOf<InventoryPartWithReferences>()
-        parts.forEach { part ->
-            val ids = Pair(part.item.id, part.color.id)
-            if (ids !in codes) {
-                if (ids !in fetchedIds) {
-                    fetchedIds.add(ids)
-                    partsToFetch.add(part)
-                }
-            }
-            else {
-                part.code = codes[ids]
-            }
-        }
-        if (partsToFetch.isNotEmpty()) {
-            fetchCodes(partsToFetch)
-        }
-        return parts
-    }
-
-    private fun fetchCodes(parts: List<InventoryPartWithReferences>)
-            = viewModelScope.launch {
-        for (part in parts) {
-            launch {
-                fetchCode(part.item, part.color)
-            }
-        }
-    }
-
-    private suspend fun fetchCode(item: Item, color: Color) {
-        var code = brickListDao.getCodeByIds(item.id, color.id)
-        if (code == null) {
-            code = Code(itemId = item.id, colorId = color.id)
-            brickListDao.insertCode(code)
-        }
-
-        if (code.image == null) {
-            val urls = getUrls(code.code, item.code, color.code)
-            for (url in urls) {
-                try {
-                    val image = requests.requestImage(url, 400, 400)
-                    val newCode = code.copy(image = image)
-                    setCode(newCode)
-                    brickListDao.updateCode(newCode)
-                    break
-                }
-                catch (e: ClientError) {
-                    println("Image not found at url: $url")
-                }
-            }
-        }
-        else {
-            setCode(code)
-        }
-    }
-
-    private fun getUrls(code: Int?, itemCode: String, colorCode: Int): List<String> {
-        val legoUrl = "https://www.lego.com/service/bricks/5/2/$code"
-        val brickLinkUrl = "https://img.bricklink.com/ItemImage/PN/$colorCode/$itemCode.png"
-        if (code != null) {
-            return listOf(legoUrl, brickLinkUrl)
-        }
-        return listOf(brickLinkUrl)
-    }
-
-    private fun setCode(code: Code) {
-        val codesData = codes.value
-        val ids = Pair(code.itemId, code.colorId ?: 0)
-        if (codesData != null) {
-            codesData[ids] = code
-            codes.postValue(codesData)
         }
     }
 

@@ -1,6 +1,5 @@
 package com.example.bricklist
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Entity(tableName = "InventoriesParts")
@@ -34,7 +33,7 @@ data class InventoryPartWithReferences(
 interface InventoryPartDao {
     @Transaction
     @Query("SELECT * FROM InventoriesParts WHERE InventoryID = :id")
-    fun getInventoryPartsById(id: Int) : LiveData<List<InventoryPartWithReferences>>
+    suspend fun getInventoryPartsById(id: Int) : List<InventoryPartWithReferences>
 
     @Update
     suspend fun updateInventoryPart(inventoryPart: InventoryPart)
