@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_parts_list.*
 import kotlinx.android.synthetic.main.content_parts_list.*
 import java.io.File
+import java.util.*
 
 class PartsListActivity : AppCompatActivity() {
 
@@ -105,9 +106,23 @@ class PartsListActivity : AppCompatActivity() {
     private fun toViewAdapterData(part: InventoryPartWithReferences)
             : InventoryPartViewAdapter.InventoryPartData {
 
+        val language = Locale.getDefault().toLanguageTag()
+
+        val itemName =
+            if (language == "pl-PL")
+                part.item.namePl ?: part.item.name
+            else
+                part.item.name
+
+        val colorName =
+            if (language == "pl-PL")
+                part.color.namePl ?: part.color.name
+            else
+                part.color.name
+
         val colorAndCodeString = resources.getString(
             R.string.color_and_code_string,
-            part.color.name,
+            colorName,
             part.item.code
         )
         val quantityString = resources.getString(
@@ -131,7 +146,7 @@ class PartsListActivity : AppCompatActivity() {
             }
 
         return InventoryPartViewAdapter.InventoryPartData(
-            part.item.name,
+            itemName,
             colorAndCodeString,
             quantityString,
             drawable,
