@@ -40,7 +40,6 @@ class InventoryRepository(database: BrickListDatabase, private val requests: Net
             inventoryId = newInventoryId
             _inventoryParts.value = listOf()
             scope.launch {
-                println("Getting parts for id: $newInventoryId")
                 val parts = inventoryPartDao.getInventoryPartsById(newInventoryId)
                 _inventoryParts.postValue(parts)
                 fetchCodes(parts)
@@ -49,7 +48,7 @@ class InventoryRepository(database: BrickListDatabase, private val requests: Net
         return _inventoryParts
     }
 
-    private fun fetchCodes(parts: List<InventoryPartWithReferences>) {
+    private suspend fun fetchCodes(parts: List<InventoryPartWithReferences>) {
         val fetchedIds = hashSetOf<Pair<Int, Int>>()
         for (part in parts) {
             val ids = Pair(part.item.id, part.color.id)
@@ -82,7 +81,7 @@ class InventoryRepository(database: BrickListDatabase, private val requests: Net
                     val image = requests.requestImage(url, 400, 400)
                     val newCode = code.copy(image = image)
                     brickListDao.updateCode(newCode)
-                    return code
+                    return newCode
                 }
                 catch (e: ClientError) {
                     println("Image not found at url: $url")

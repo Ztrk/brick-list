@@ -16,7 +16,7 @@
             android:summaryOn="@string/archived_summary_on"
             android:title="@string/archived_title" />
         <ListPreference
-            android:defaultValue="false"
+            android:defaultValue="not_important"
             android:entries="@array/condition_entries"
             android:entryValues="@array/condition_values"
             android:key="condition"
