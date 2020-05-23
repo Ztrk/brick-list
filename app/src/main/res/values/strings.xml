@@ -25,7 +25,14 @@
     <string name="set_number_hint">Set number</string>
     <string name="name_hint">Name</string>
     <string name="add_button_text">Add</string>
-    <string name="check_button_text">Check</string>
+
+    <string name="add_in_progress">Adding project in progress</string>
+    <string name="add_wrong_url">Set with this number does not exist</string>
+    <string name="add_network_error">Couldn\'t download the project</string>
+    <string name="add_success">New project was created</string>
+    <string name="add_already_in_progress">Operation is already in progress</string>
+    <string name="add_bricks_not_found">Some bricks were not found:</string>
+    <string name="add_bricks_not_found_others">And %1$d others</string>
 
     <!-- Preferences -->
     <string name="title_activity_settings">Settings</string>
