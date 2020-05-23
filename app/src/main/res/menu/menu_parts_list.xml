@@ -3,8 +3,22 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/actionExport"
+        android:id="@+id/action_export"
         android:icon="@drawable/ic_save_white_24dp"
         android:title="@string/action_export"
         app:showAsAction="ifRoom" />
+    <group
+        android:id="@+id/sort"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/sort_none"
+            android:checked="true"
+            android:title="@string/sort_none_title" />
+        <item
+            android:id="@+id/sort_color"
+            android:title="@string/sort_color_title" />
+        <item
+            android:id="@+id/sort_item"
+            android:title="@string/sort_item_title" />
+    </group>
 </menu>

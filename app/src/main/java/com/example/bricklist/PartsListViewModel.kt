@@ -20,8 +20,26 @@ class PartsListViewModel(application: Application, inventoryId: Int)
         NetworkRequests.getInstance(application)
     )
 
-    val inventoryParts: LiveData<List<InventoryPartWithReferences>>
-            = repository.getInventoryParts(inventoryId)
+    enum class SortBy { NONE, ITEM, COLOR }
+
+    private val _sortBy = MutableLiveData(SortBy.NONE)
+
+    val inventoryParts: LiveData<List<InventoryPartWithReferences>> =
+        Transformations.switchMap(_sortBy) { sortBy ->
+            Transformations.map(repository.getInventoryParts(inventoryId)) {
+                when (sortBy) {
+                    SortBy.ITEM -> it.sortedBy { part -> part.item.code }
+                    SortBy.COLOR -> it.sortedBy { part -> part.color.code }
+                    else -> it
+                }.sortedBy { part ->
+                    part.inventoryPart.quantityInSet == part.inventoryPart.quantityInStore
+                }
+            }
+        }
+
+    fun setSortBy(value: SortBy) {
+        _sortBy.value = value
+    }
 
     private var inventory: Inventory? = null
 

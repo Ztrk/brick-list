@@ -15,6 +15,10 @@
     <string name="plus_button_description">Plus button, add 1 to found bricks</string>
     <string name="minus_button_description">Minus button, remove 1 from found bricks</string>
 
+    <string name="sort_none_title">Reset sort</string>
+    <string name="sort_item_title">Sort by brick type</string>
+    <string name="sort_color_title">Sort by color</string>
+
     <!-- Export -->
     <string name="action_export">Export to XML (Wanted List)</string>
     <string name="export_chooser_title">Export XML (Wanted List) to:</string>

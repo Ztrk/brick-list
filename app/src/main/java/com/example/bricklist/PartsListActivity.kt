@@ -79,8 +79,23 @@ class PartsListActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
-            R.id.actionExport -> {
+            R.id.action_export -> {
                 viewModel.exportToXml()
+                true
+            }
+            R.id.sort_none -> {
+                viewModel.setSortBy(PartsListViewModel.SortBy.NONE)
+                item.isChecked = true
+                true
+            }
+            R.id.sort_item -> {
+                viewModel.setSortBy(PartsListViewModel.SortBy.ITEM)
+                item.isChecked = true
+                true
+            }
+            R.id.sort_color -> {
+                viewModel.setSortBy(PartsListViewModel.SortBy.COLOR)
+                item.isChecked = true
                 true
             }
             else -> super.onOptionsItemSelected(item)
