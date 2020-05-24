@@ -3,6 +3,7 @@ package com.example.bricklist
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.volley.ClientError
+import com.android.volley.VolleyError
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -82,9 +83,11 @@ class InventoryRepository(database: BrickListDatabase, private val requests: Net
                     val newCode = code.copy(image = image)
                     brickListDao.updateCode(newCode)
                     return newCode
-                }
-                catch (e: ClientError) {
+                } catch (e: ClientError) {
                     println("Image not found at url: $url")
+                } catch (e: VolleyError) {
+                    println("Error while downloading from: $url, aborting")
+                    break
                 }
             }
         }
